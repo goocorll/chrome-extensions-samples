@@ -1,8 +1,8 @@
-var vendorId = 0x0922;
-var productId = 0x0020;
+var vendorId = 0x0922; 
+var productId = 0x0020; //LabelWriter 450 =0x0020. LabelWriter 450 Turbo = 0x0021. LabelWriter 450 Twin Turbo=0x0022; 
 
 var ESC = 0x1B;
-var SYN = 0x16;
+var SYN = 0x16; //This is a syncronization character that specifies the data will be uncompressed.
 
 var pageWidth = 304;  // pixels (must be multiple of 8)
 var pageHeight = 900; // pixels
@@ -11,37 +11,31 @@ var pageHeight = 900; // pixels
 var $ = function(id) { return document.getElementById(id); };
 var $$ = function(selector) { return document.querySelector(selector); };
 
-var resetSequence = // 156 times ESC
+var resetSequence = // 85 times ESC. 12 ESC per line.
    [ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC,
     ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC,
     ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC,
     ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC,
     ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC,
     ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC,
-    ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC,
-    ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC,
-    ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC,
-    ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC,
-    ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC,
-    ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC,
-    ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC];
+    ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC, ESC];
 
 // should set the resolution to 204x204ppi, but the resolution I get is more
 // like 290x580, not sure what's up with that.
-var setResolution = [ESC, 0x79];
+var setResolution = [ESC, 0x79]; //121 or "y"
 // some more seemingly required setup stuff
-var tabData = [ESC, 0x51, 0, 0, ESC, 42, 0];
-var qualityData = [ESC, 0x69]; // images
-var densityData = [ESC, 0x65]; // normal
-var lengthData = [ESC, 0x4C,  0x40, 0x00]; // not sure what this is about...
+var tabData = [ESC, 0x51, 0, 0, ESC, 42, 0]; //0x51 = 81 or Q, 
+var qualityData = [ESC, 0x69]; // i images
+var densityData = [ESC, 0x65]; // e normal
+var lengthData = [ESC, 0x4C,  0x40, 0x00]; // <esc>, L, @ or 64, <null>,  This tells the printer what the length of the label is. Variables are after L. Only the second variable is needed for 450 TwinTurbo.  
 
-var startDoc = resetSequence.concat(setResolution, tabData, qualityData,
-                                    densityData, lengthData);
-var endDoc = [ESC, 0x45]; // Form feed
+var startDoc = resetSequence.concat(setResolution, tabData, qualityData, densityData, lengthData);
+var endDoc = [ESC, 0x45]; // E, Form feed to next label if device encountered error during previous print.
 
-var logoImg = new Image();
-logoImg.src = "chrome_logo.png";
+//var logoImg = new Image();
+//logoImg.src = "chrome_logo.png";
 
+//////DEVICE IS NOW SET UP AND READY FOR COMMANDS////////
 
 function requestPermission(callback) {
   chrome.permissions.request(
